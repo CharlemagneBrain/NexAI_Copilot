@@ -1,22 +1,20 @@
 import argparse
-import csv
 from CSVConnector.reader import CSVReader
 from TSVConnector.reader import TSVReader
 
+class DataLoader:
+    def __init__(self):
+        self.parsers = {'csv': CSVReader(), 'tsv': TSVReader()}
+
+    def load_data(self, file_type, filepaths):
+        reader = self.parsers.get(file_type.lower())
+        if reader is None:
+            raise ValueError("Type de fichier non pris en charge")
+        return reader.read_files(filepaths)
+
 def main(args):
-    file_type = args.type.lower()
-
-    if file_type not in ("csv", "tsv"):
-        raise ValueError("Type de fichier non pris en charge")
-
-    filepaths = args.files
-
-    if file_type == "csv":
-        reader = CSVReader()
-    elif file_type == "tsv":
-        reader = TSVReader()
-    data = reader.read_files(filepaths)
-
+    loader = DataLoader()
+    data = loader.load_data(args.type, args.files)
     print(data.head())
 
 if __name__ == "__main__":
