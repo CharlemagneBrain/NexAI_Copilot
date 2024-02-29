@@ -14,7 +14,6 @@ class CSVReader:
                 raise FileNotFoundError(f"Fichier non trouvé: {e.filename}")
             dataframes.append(df)
         
-        # Vérification des colonnes et des index
         columns = check_columns(dataframes)
         check_unique_index(dataframes)
         
