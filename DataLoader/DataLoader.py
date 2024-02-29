@@ -1,6 +1,8 @@
 import argparse
+import pandas as pd
 from CSVConnector.reader import CSVReader
 from TSVConnector.reader import TSVReader
+from utils import determine_integration_operation
 
 class DataLoader:
     def __init__(self):
@@ -12,9 +14,26 @@ class DataLoader:
             raise ValueError("Type de fichier non pris en charge")
         return reader.read_files(filepaths)
 
+    def integrate_data(self, file_type, filepaths):
+        dataframes = self.load_data(file_type, filepaths)
+        operation = determine_integration_operation(dataframes)
+        if operation == 'concatenation':
+            return self.parsers[file_type].merge_dataframes(dataframes)
+        elif operation == 'jointure':
+            common_columns = list(set.intersection(*[set(df.columns) for df in dataframes]))
+            if not common_columns:
+                raise ValueError("Aucune colonne commune pour effectuer la jointure")
+            merged_df = dataframes[0]
+            for df in dataframes[1:]:
+                merged_df = pd.merge(merged_df, df, how='inner', on=common_columns)
+            return merged_df
+            
+        elif operation == 'union':
+            return pd.concat(dataframes, axis=0, ignore_index=True)
+
 def main(args):
     loader = DataLoader()
-    data = loader.load_data(args.type, args.files)
+    data = loader.integrate_data(args.type, args.files)
     print(data.head())
 
 if __name__ == "__main__":

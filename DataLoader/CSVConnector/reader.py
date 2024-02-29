@@ -14,7 +14,10 @@ class CSVReader:
                 raise FileNotFoundError(f"Fichier non trouvé: {e.filename}")
             dataframes.append(df)
         
-        columns = check_columns(dataframes)
+        check_columns(dataframes)
         check_unique_index(dataframes)
         
+        return pd.concat(dataframes)
+
+    def merge_dataframes(self, dataframes):
         return pd.concat(dataframes)
