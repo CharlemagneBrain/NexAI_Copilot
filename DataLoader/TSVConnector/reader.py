@@ -1,5 +1,6 @@
 import pandas as pd
-from CSVConnector import CSVReader
+from ..utils import check_columns, check_unique_index
+from CSVConnector.reader import CSVReader
 
 class TSVReader(CSVReader):
     def __init__(self):

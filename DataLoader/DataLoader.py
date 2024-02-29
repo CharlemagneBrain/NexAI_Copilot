@@ -13,7 +13,6 @@ class DataLoader:
         return reader.read_files(filepaths)
 
 def main(args):
-    
     loader = DataLoader()
     data = loader.load_data(args.type, args.files)
     print(data.head())
