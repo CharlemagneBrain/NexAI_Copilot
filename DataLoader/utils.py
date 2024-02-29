@@ -1,10 +1,6 @@
 import pandas as pd
 
 def check_columns(dataframes):
-   
-    """
-        Vérifie que les colonnes des fichiers sont identiques
-    """
     cols = [set(df.columns) for df in dataframes]
     if len(set(cols)) != 1:
         raise ValueError("Les colonnes des fichiers ne correspondent pas")
