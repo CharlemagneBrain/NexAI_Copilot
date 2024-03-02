@@ -1,7 +1,8 @@
 import argparse
+import pandas as pd
 from CSVConnector.reader import CSVReader
 from TSVConnector.reader import TSVReader
-from pandas import DataFrame
+
 
 def load_data(file_paths):
     dataframes = []
@@ -19,7 +20,7 @@ def load_data(file_paths):
 
 def integrate_dataframes(dataframes):
     # Assuming all dataframes have the same columns
-    return DataFrame(pd.concat(dataframes, ignore_index=True))
+    return pd.DataFrame(pd.concat(dataframes, ignore_index=True))
 
 def main():
     parser = argparse.ArgumentParser(description='Load and integrate CSV or TSV files')
