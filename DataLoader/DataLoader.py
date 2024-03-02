@@ -1,45 +1,42 @@
 import argparse
-import pandas as pd
 from CSVConnector.reader import CSVReader
 from TSVConnector.reader import TSVReader
-from utils import determine_integration_operation
+from pandas import DataFrame
 
-class DataLoader:
-    def __init__(self):
-        self.parsers = {'csv': CSVReader(), 'tsv': TSVReader()}
+def load_data(file_paths):
+    dataframes = []
+    for file_path in file_paths:
+        if file_path.endswith('.csv'):
+            reader = CSVReader()
+            df = reader.read(file_path)
+        elif file_path.endswith('.tsv'):
+            reader = TSVReader()
+            df = reader.read(file_path)
+        else:
+            raise ValueError("Unsupported file format")
+        dataframes.append(df)
+    return dataframes
 
-    def load_data(self, file_type, filepaths):
-        reader = self.parsers.get(file_type.lower())
-        if reader is None:
-            raise ValueError("Type de fichier non pris en charge")
-        return reader.read_files(filepaths)
+def integrate_dataframes(dataframes):
+    # Assuming all dataframes have the same columns
+    return DataFrame(pd.concat(dataframes, ignore_index=True))
 
-    def integrate_data(self, file_type, filepaths):
-        dataframes = self.load_data(file_type, filepaths)
-        operation = determine_integration_operation(dataframes)
-        if operation == 'concatenation':
-            return self.parsers[file_type].merge_dataframes(dataframes)
-        elif operation == 'jointure':
-            common_columns = list(set.intersection(*[set(df.columns) for df in dataframes]))
-            if not common_columns:
-                raise ValueError("Aucune colonne commune pour effectuer la jointure")
-            merged_df = dataframes[0]
-            for df in dataframes[1:]:
-                merged_df = pd.merge(merged_df, df, how='inner', on=common_columns)
-            return merged_df
-            
-        elif operation == 'union':
-            return pd.concat(dataframes, axis=0, ignore_index=True)
+def main():
+    parser = argparse.ArgumentParser(description='Load and integrate CSV or TSV files')
+    parser.add_argument('--type', choices=['csv', 'tsv'], help='Type of files to load')
+    parser.add_argument('files', nargs='+', help='List of file paths to load')
+    args = parser.parse_args()
 
-def main(args):
-    loader = DataLoader()
-    data = loader.integrate_data(args.type, args.files)
-    print(data.head())
+    if args.type == 'csv':
+        file_paths = args.files
+    elif args.type == 'tsv':
+        file_paths = args.files
+    else:
+        raise ValueError("Unsupported file format")
+
+    dataframes = load_data(file_paths)
+    integrated_df = integrate_dataframes(dataframes)
+    print(integrated_df)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Chargeur de données")
-    parser.add_argument("type", help="Type de fichier (CSV ou TSV)")
-    parser.add_argument("files", nargs="+", help="Chemins des fichiers")
-    args = parser.parse_args()
-    
-    main(args)
+    main()

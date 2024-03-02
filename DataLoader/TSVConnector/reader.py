@@ -1,11 +1,5 @@
 import pandas as pd
-from ..utils import check_columns, check_unique_index
-from CSVConnector.reader import CSVReader
 
-
-class TSVReader(CSVReader):
-    def __init__(self):
-        super().__init__(delimiter='\t')
-
-    def merge_dataframes(self, dataframes):
-        return pd.concat(dataframes)
+class TSVReader:
+    def read(self, file_path):
+        return pd.read_csv(file_path, sep='\t')
