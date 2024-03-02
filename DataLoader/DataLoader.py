@@ -3,7 +3,6 @@ import pandas as pd
 from CSVConnector.reader import CSVReader
 from TSVConnector.reader import TSVReader
 
-
 def load_data(file_paths):
     dataframes = []
     for file_path in file_paths:
@@ -19,8 +18,24 @@ def load_data(file_paths):
     return dataframes
 
 def integrate_dataframes(dataframes):
-    # Assuming all dataframes have the same columns
-    return pd.DataFrame(pd.concat(dataframes, ignore_index=True))
+    
+    same_structure = all(dataframes[0].columns.equals(df.columns) for df in dataframes)
+    if same_structure:
+       
+        integrated_df = pd.concat(dataframes, ignore_index=True)
+    else:
+
+        common_columns = set(dataframes[0].columns)
+        for df in dataframes[1:]:
+            common_columns &= set(df.columns)
+        if common_columns:
+            
+            integrated_df = pd.concat([df.set_index(list(common_columns)) for df in dataframes], axis=1).reset_index()
+        else:
+            
+            integrated_df = pd.concat(dataframes, ignore_index=True)
+    return integrated_df
+
 
 def main():
     parser = argparse.ArgumentParser(description='Load and integrate CSV or TSV files')
@@ -37,7 +52,7 @@ def main():
 
     dataframes = load_data(file_paths)
     integrated_df = integrate_dataframes(dataframes)
-    print(integrated_df)
+    print(integrated_df.head())
 
 if __name__ == "__main__":
     main()
